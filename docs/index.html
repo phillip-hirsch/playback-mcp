@@ -245,8 +245,12 @@
       #examples .uc {
         text-align: center;
       }
-      /* Center the promo rows (2 cards + 3 cards) instead of leaving grid gaps;
-         below 560px the shared carousel styles take back over. */
+      /* Center the promo rows (2 cards + 3 cards) instead of leaving grid gaps.
+         Phones hide the labeled groups and show one combined 5-card carousel instead —
+         two stacked scrollers (and two dots rows) were too cramped there. */
+      .promo-mobile {
+        display: none;
+      }
       @media (min-width: 561px) {
         #examples .uses {
           display: flex;
@@ -255,6 +259,16 @@
         }
         #examples .uc {
           flex: 0 1 280px;
+        }
+      }
+      /* #examples prefix so this outranks the later generic .uses carousel rules,
+         which would otherwise re-show the hidden groups as flex rows on phones */
+      @media (max-width: 560px) {
+        #examples .promo-desktop {
+          display: none;
+        }
+        #examples .promo-mobile {
+          display: block;
         }
       }
       /* The notes page's attribution mark, inside the teaser CTA button */
@@ -1683,8 +1697,9 @@
           <h2>Coming soon in v1.0.0</h2>
           <p>Headless processing, playlist handling, and recursive notes generation.</p>
         </div>
-        <p class="sub-label">New tools</p>
-        <div class="uses" data-carousel>
+        <!-- Desktop: two labeled groups. Phones swap to the single carousel below. -->
+        <p class="sub-label promo-desktop">New tools</p>
+        <div class="uses promo-desktop">
           <div class="uc">
             <span class="ico" aria-hidden="true">📡</span>
             <h3>Headless mode</h3>
@@ -1696,9 +1711,8 @@
             <p>List whole playlists, and run parallel sessions in background tabs.</p>
           </div>
         </div>
-        <div class="dots" role="tablist" aria-label="New tools in v1.0.0"></div>
-        <p class="sub-label">Recursive notes</p>
-        <div class="uses" data-carousel>
+        <p class="sub-label promo-desktop">Recursive notes</p>
+        <div class="uses promo-desktop">
           <div class="uc">
             <span class="ico" aria-hidden="true">🤖</span>
             <h3>Agent notes pipeline</h3>
@@ -1715,7 +1729,36 @@
             <p>Every citation re-checked against the transcript for faithfulness.</p>
           </div>
         </div>
-        <div class="dots" role="tablist" aria-label="Notes features in v1.0.0"></div>
+        <div class="promo-mobile">
+          <div class="uses" data-carousel>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">📡</span>
+              <h3>Headless mode</h3>
+              <p>Transcripts, outlines, and chapters from just a URL &mdash; no browser tab.</p>
+            </div>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">🗂️</span>
+              <h3>Playlist tools</h3>
+              <p>List whole playlists, and run parallel sessions in background tabs.</p>
+            </div>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">🤖</span>
+              <h3>Agent notes pipeline</h3>
+              <p>Research &rarr; verify &rarr; synthesize &rarr; render.</p>
+            </div>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">🌳</span>
+              <h3>Recursive note relations</h3>
+              <p>A dependency tree linking playlist, videos, and sections.</p>
+            </div>
+            <div class="uc">
+              <span class="ico" aria-hidden="true">🛡️</span>
+              <h3>Adversarial review</h3>
+              <p>Every citation re-checked against the transcript for faithfulness.</p>
+            </div>
+          </div>
+          <div class="dots" role="tablist" aria-label="What's coming in v1.0.0"></div>
+        </div>
         <div class="cta-row" style="margin-top: 28px">
           <a class="btn btn-primary" href="examples/aie-worlds-fair-2026/">
             <svg class="btn-mark" viewBox="70 52 372 384" fill="currentColor" aria-hidden="true">
