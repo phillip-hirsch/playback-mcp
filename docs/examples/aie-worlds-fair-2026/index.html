@@ -56,6 +56,7 @@ border-radius:8px;padding:5px 10px;font:inherit;font-size:.78rem;cursor:pointer;
 white-space:nowrap}
 button.hbtn:hover{color:var(--text);border-color:var(--indigo)}
 button.theme-btn{font-size:.95rem;line-height:1;padding:5px 8px}
+.fab-group{display:none}
 .wm-top{display:inline-flex;align-items:center;gap:.4rem;color:var(--text-muted);
 font-size:.78rem;opacity:.8;white-space:nowrap}
 .wm-top:hover{opacity:1;color:var(--text);text-decoration:none}
@@ -216,6 +217,33 @@ body.nav-open{overflow:hidden}
 main{padding:22px 18px 64px}
 details.vcard>summary{padding:12px 14px}
 .vbody{padding:2px 14px 16px}
+}
+/* Phones: header buttons hide and the .fab-group takes over — a single + FAB in the
+   lower-right thumb zone (~15% up the screen) that fans the actions out leftward
+   (contents, collapse-all, theme) when tapped. line-height centering, not grid —
+   WebKit ignores grid/flex centering inside <button>. */
+@media (max-width:620px){
+header.nav button.toc-btn,header.nav button.hbtn{display:none}
+.fab-group{display:block}
+.fab-group button{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));
+z-index:25;width:44px;height:44px;
+border-radius:50%;padding:0;display:block;text-align:center;line-height:42px;
+box-shadow:var(--shadow);opacity:0;pointer-events:none;transform:translateX(14px);
+transition:opacity .18s ease,transform .18s ease}
+body.fab-open .fab-group button{opacity:1;pointer-events:auto;transform:none}
+.fab-group .toc-btn{right:70px;font-size:0}
+.fab-group .toc-btn::after{content:"\2630";font-size:1.15rem}
+.fab-group .collapse-btn{right:122px;font-size:0}
+.fab-group .collapse-btn::after{content:"\2212";font-size:1.4rem}
+.fab-group .theme-btn{right:174px;font-size:1.15rem}
+.fab-group .fab-toggle{right:14px;bottom:calc(16px + env(safe-area-inset-bottom,0px));
+z-index:26;width:52px;height:52px;border:0;
+background:linear-gradient(180deg,var(--indigo),var(--indigo-deep));color:#fff;
+font-size:1.6rem;line-height:52px;cursor:pointer;opacity:1;pointer-events:auto;
+transform:none;box-shadow:0 6px 18px rgba(63,55,181,.4);transition:transform .18s ease}
+body.fab-open .fab-group .fab-toggle{transform:rotate(45deg)}
+.stats{justify-content:center}
+.stat{flex:1 1 40%;text-align:center}
 }
 </style>
 </head>
@@ -12718,6 +12746,15 @@ stroke-linecap="round" stroke-linejoin="round"/><circle cx="296" cy="68" r="16"/
 y="138" width="372" height="298" rx="58"/></g></svg><span>Generated using <b>Playback MCP</b></span></a></footer>
 </main>
 </div>
+<!-- Phone-only quick actions. Lives outside header.nav on purpose: its backdrop-filter
+     makes it the containing block for fixed descendants, which pinned earlier attempts
+     to the top of the screen. -->
+<div class="fab-group">
+<button class="hbtn theme-btn" type="button" aria-label="Toggle light or dark theme">&#127769;</button>
+<button class="hbtn collapse-btn" type="button" aria-label="Collapse every open card"></button>
+<button class="toc-btn" type="button" aria-label="Contents"></button>
+<button class="fab-toggle" type="button" aria-label="Toggle quick actions" aria-expanded="false">+</button>
+</div>
 <script>
 (function () {
   'use strict';
@@ -12734,9 +12771,9 @@ y="138" width="372" height="298" rx="58"/></g></svg><span>Generated using <b>Pla
   });
   if (location.hash) openTo(decodeURIComponent(location.hash.slice(1)), true);
 
-  // --- mobile drawer ---
-  var tocBtn = document.querySelector('.toc-btn');
-  if (tocBtn) tocBtn.addEventListener('click', function () {
+  // --- mobile drawer (header button + FAB copy share the class) ---
+  var tocBtns = document.querySelectorAll('.toc-btn');
+  for (var ti = 0; ti < tocBtns.length; ti++) tocBtns[ti].addEventListener('click', function () {
     document.body.classList.toggle('nav-open');
   });
 
@@ -12747,8 +12784,8 @@ y="138" width="372" height="298" rx="58"/></g></svg><span>Generated using <b>Pla
   });
 
   // --- collapse all open cards (video cards, caveats, nav groups) ---
-  var collapseBtn = document.querySelector('.collapse-btn');
-  if (collapseBtn) collapseBtn.addEventListener('click', function () {
+  var collapseBtns = document.querySelectorAll('.collapse-btn');
+  for (var ci = 0; ci < collapseBtns.length; ci++) collapseBtns[ci].addEventListener('click', function () {
     var open = document.querySelectorAll('details[open]');
     for (var i = 0; i < open.length; i++) open[i].open = false;
   });
@@ -12760,11 +12797,12 @@ y="138" width="372" height="298" rx="58"/></g></svg><span>Generated using <b>Pla
     if (forced) return forced === 'dark';
     return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   }
-  var themeBtn = document.querySelector('.theme-btn');
+  var themeBtns = document.querySelectorAll('.theme-btn');
   function syncThemeIcon() {
-    if (themeBtn) themeBtn.textContent = isDark() ? '☀️' : '🌙';
+    var icon = isDark() ? '☀️' : '🌙';
+    for (var i = 0; i < themeBtns.length; i++) themeBtns[i].textContent = icon;
   }
-  if (themeBtn) themeBtn.addEventListener('click', function () {
+  for (var bi = 0; bi < themeBtns.length; bi++) themeBtns[bi].addEventListener('click', function () {
     var next = isDark() ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('pmcp-theme', next); } catch (e) {}
@@ -12780,6 +12818,13 @@ y="138" width="372" height="298" rx="58"/></g></svg><span>Generated using <b>Pla
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeIcon);
   }
   syncThemeIcon();
+
+  // --- phone-only + FAB: fans the header actions out leftward ---
+  var fabBtn = document.querySelector('.fab-toggle');
+  if (fabBtn) fabBtn.addEventListener('click', function () {
+    var open = document.body.classList.toggle('fab-open');
+    fabBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
 
   // --- search index: nav link -> searchable text (title + content scope) ---
   var side = document.querySelector('nav.side');
